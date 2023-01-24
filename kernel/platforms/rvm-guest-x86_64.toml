@@ -1,0 +1,9 @@
+phys-memory-base = "0"
+phys-memory-size = "0x100_0000"  # 16M
+kernel-base-paddr = "0x20_0000"
+kernel-base-vaddr = "0xffff_ff80_0020_0000"
+mmio-regions = [
+    ["0xfec0_0000", "0x1000"],   # IO APIC
+    ["0xfed0_0000", "0x1000"],   # HPET
+    ["0xfee0_0000", "0x1000"],   # Local APIC
+]

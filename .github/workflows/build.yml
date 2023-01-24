@@ -1,0 +1,58 @@
+name: Build CI
+
+on: [push, pull_request]
+
+jobs:
+  clippy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64, riscv64]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: nightly-2022-11-03
+        override: true
+        components: rust-src, clippy, rustfmt
+    - name: Clippy
+      run: make -C kernel clippy ARCH=${{ matrix.arch }}
+    - name: Check code format
+      run: cd kernel && cargo fmt -- --check
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        arch: [x86_64, aarch64, riscv64]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: nightly-2022-02-22
+        components: rust-src, llvm-tools-preview
+    - name: Setup environment
+      run: make -C kernel env ARCH=${{ matrix.arch }}
+
+    - name: Install musl toolchain
+      run: |
+        if [ "${{ matrix.arch }}" = "x86_64" ]; then
+          export MUSL_PATH="x86_64-linux-musl-cross"
+        elif [ "${{ matrix.arch }}" = "aarch64" ]; then
+          export MUSL_PATH="aarch64-linux-musl-cross"
+        elif [ "${{ matrix.arch }}" = "riscv64" ]; then
+          export MUSL_PATH="riscv64-linux-musl-cross"
+        fi
+        wget https://musl.cc/$MUSL_PATH.tgz
+        tar -xf $MUSL_PATH.tgz
+        mv $MUSL_PATH musl
+
+    - name: Build kernel
+      run: |
+        export PATH=$PATH:$PWD/musl/bin
+        make -C kernel ARCH=${{ matrix.arch }}
