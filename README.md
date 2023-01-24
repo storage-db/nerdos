@@ -2,10 +2,137 @@
 
 A hobbyist operating system written in Rust based on [equation314/nimbos](https://github.com/equation314/nimbos).
 
+## TODO
+
+- [ ] CFS scheduler
+- [ ] FFI <-> alios implementation
+- [ ] Multi-core support
+- [ ] ...
+
+## Development Environment
+
+1. Clone the repository
+
+    ```sh
+    https://github.com/cargo-youth/nerdos
+    ```
+
+2. Switch rust toolchain to nightly
+
+    ```sh
+    rustup install nightly
+    rustup default nightly
+    ```
+
+3. Install packages
+
+    ```sh
+    sudo apt install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
+              gawk build-essential bison flex texinfo gperf libtool patchutils bc \
+              zlib1g-dev libexpat-dev pkg-config  libglib2.0-dev libpixman-1-dev libsdl2-dev \
+              git tmux python3 python3-pip ninja-build
+    ```
+
+4. Install qemu
+
+    ```sh
+    mkdir kit # Here we create a directory in the project root to store the tools
+    pushd kit
+    wget https://download.qemu.org/qemu-7.0.0.tar.xz
+    tar -xf qemu-7.0.0.tar.xz
+    cd qemu-7.0.0
+    ./configure --target-list=x86_64-softmmu,aarch64-softmmu,riscv64-softmmu --enable-debug
+    make -j$(nproc)
+    popd
+    ```
+
+    And then add the following line to your `~/.bashrc`:
+
+    ```sh
+    export PATH=$PATH:/path_to_kit/qemu-7.0.0/build
+    ```
+
+    Here `path_to_kit` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/qemu-7.0.0/build`
+
+5. Install musl
+
+    Select your target architecture from [musl.cc](https://musl.cc/).
+
+    ```sh
+    pushd kit
+    wget https://musl.cc/x86_64-linux-musl-cross.tgz
+    tar -xf x86_64-linux-musl-cross.tgz
+    popd
+    ```
+
+    And then add the following line to your `~/.bashrc`:
+
+    ```sh
+    export PATH=$PATH:/PATH/TO/x86_64-linux-musl-cross/bin
+    ```
+
+    Here `PATH/TO` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/x86_64-linux-musl-cross/bin`
+
+6. Test qemu and musl
+
+    Restart your terminal and run the following commands:
+
+    ```sh
+    qemu-system-x86_64 --version
+    x86_64-linux-musl-gcc --version
+    ```
+
 ## Build & Run (in QEMU)
 
 ```sh
 cd kernel
 make env
 make run ARCH=x86_64 LOG=warn
+# or 
+make run ARCH=riscv64 LOG=warn
+# or
+make run ARCH=aarch64 LOG=warn
 ```
+
+If you encounter any problems, try add a `VERBOSE=1` to the `make SOMETHING` command.
+
+```sh
+make run VERBOSE=1
+```
+
+## Troubleshooting
+
+### `make run` fails with `error: linker 'x86_64-linux-musl-gcc' not found`
+
+This is because the `x86_64-linux-musl-gcc` is not in your `PATH`. Or failed to build the musl toolchain.
+
+### `make run` fails with `Could not access KVM kernel module: No such file or directory`
+
+This is because you don't have KVM enabled. Try to enable it in your BIOS.
+
+Or try to run the following command:
+
+```sh
+sudo modprobe kvm-intel
+```
+
+If it shows `modprobe: ERROR: could not insert 'kvm_intel': Operation not supported`, then you don't have KVM enabled. Try to enable it or switch to another architecture.
+
+### `make run` fails with `riscv64-linux-musl-gcc: No such file or directory`
+
+This is because you don't have the riscv64 musl toolchain installed. Try to install it with the following command:
+
+```sh
+pushd kit
+wget https://musl.cc/riscv64-linux-musl-cross.tgz
+tar -xf riscv64-linux-musl-cross.tgz
+popd
+```
+
+And then add the following line to your `~/.bashrc`:
+
+```sh
+export PATH=$PATH:/PATH/TO/riscv64-linux-musl-cross/bin
+```
+
+Here `PATH/TO` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/riscv64-linux-musl-cross/bin`
