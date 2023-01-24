@@ -17,7 +17,7 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
     https://github.com/cargo-youth/nerdos
     ```
 
-2. Switch rust toolchain to nightly
+2. Switch `rust` toolchain to nightly
 
     ```sh
     rustup install nightly
@@ -33,7 +33,7 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
               git tmux python3 python3-pip ninja-build
     ```
 
-4. Install qemu
+4. Install `qemu`
 
     ```sh
     mkdir kit # Here we create a directory in the project root to store the tools
@@ -54,7 +54,7 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
 
     Here `path_to_kit` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/qemu-7.0.0/build`
 
-5. Install musl
+5. Install `musl`
 
     Select your target architecture from [musl.cc](https://musl.cc/).
 
@@ -68,12 +68,12 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
     And then add the following line to your `~/.bashrc`:
 
     ```sh
-    export PATH=$PATH:/PATH/TO/x86_64-linux-musl-cross/bin
+    export PATH=$PATH:/path_to_kit/x86_64-linux-musl-cross/bin
     ```
 
-    Here `PATH/TO` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/x86_64-linux-musl-cross/bin`
+    Here `path_to_kit` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/x86_64-linux-musl-cross/bin`
 
-6. Test qemu and musl
+6. Test `qemu` and `musl`
 
     Restart your terminal and run the following commands:
 
@@ -132,7 +132,7 @@ popd
 And then add the following line to your `~/.bashrc`:
 
 ```sh
-export PATH=$PATH:/PATH/TO/riscv64-linux-musl-cross/bin
+export PATH=$PATH:/path_to_kit/riscv64-linux-musl-cross/bin
 ```
 
-Here `PATH/TO` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/riscv64-linux-musl-cross/bin`
+Here `path_to_kit` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/riscv64-linux-musl-cross/bin`
