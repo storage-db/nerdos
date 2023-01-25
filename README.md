@@ -1,5 +1,7 @@
 # NerdOS
 
+![logo](https://raw.githubusercontent.com/pluveto/0images/master/2023/01/upgit_20230125_1674617889.png)
+
 A hobbyist operating system written in Rust based on [equation314/nimbos](https://github.com/equation314/nimbos).
 
 ## TODO
@@ -102,37 +104,37 @@ make run VERBOSE=1
 
 ## Troubleshooting
 
-### `make run` fails with `error: linker 'x86_64-linux-musl-gcc' not found`
+1. `make run` fails with `error: linker 'x86_64-linux-musl-gcc' not found`
 
-This is because the `x86_64-linux-musl-gcc` is not in your `PATH`. Or failed to build the musl toolchain.
+    This is because the `x86_64-linux-musl-gcc` is not in your `PATH`. Or failed to build the musl toolchain.
 
-### `make run` fails with `Could not access KVM kernel module: No such file or directory`
+1. `make run` fails with `Could not access KVM kernel module: No such file or directory`
 
-This is because you don't have KVM enabled. Try to enable it in your BIOS.
+    This is because you don't have KVM enabled. Try to enable it in your BIOS.
 
-Or try to run the following command:
+    Or try to run the following command:
 
-```sh
-sudo modprobe kvm-intel
-```
+    ```sh
+    sudo modprobe kvm-intel
+    ```
 
-If it shows `modprobe: ERROR: could not insert 'kvm_intel': Operation not supported`, then you don't have KVM enabled. Try to enable it or switch to another architecture.
+    If it shows `modprobe: ERROR: could not insert 'kvm_intel': Operation not supported`, then you don't have KVM enabled. Try to enable it or switch to another architecture.
 
-### `make run` fails with `riscv64-linux-musl-gcc: No such file or directory`
+1. `make run` fails with `riscv64-linux-musl-gcc: No such file or directory`
 
-This is because you don't have the riscv64 musl toolchain installed. Try to install it with the following command:
+    This is because you don't have the riscv64 musl toolchain installed. Try to install it with the following command:
 
-```sh
-pushd kit
-wget https://musl.cc/riscv64-linux-musl-cross.tgz
-tar -xf riscv64-linux-musl-cross.tgz
-popd
-```
+    ```sh
+    pushd kit
+    wget https://musl.cc/riscv64-linux-musl-cross.tgz
+    tar -xf riscv64-linux-musl-cross.tgz
+    popd
+    ```
 
-And then add the following line to your `~/.bashrc`:
+    And then add the following line to your `~/.bashrc`:
 
-```sh
-export PATH=$PATH:/path_to_kit/riscv64-linux-musl-cross/bin
-```
+    ```sh
+    export PATH=$PATH:/path_to_kit/riscv64-linux-musl-cross/bin
+    ```
 
-Here `path_to_kit` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/riscv64-linux-musl-cross/bin`
+    Here `path_to_kit` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/riscv64-linux-musl-cross/bin`
