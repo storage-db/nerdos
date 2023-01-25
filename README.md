@@ -138,3 +138,14 @@ make run VERBOSE=1
     ```
 
     Here `path_to_kit` is the path to the `kit` directory. For example `/home/pluveto/workspace/playground/nerdos/kit/riscv64-linux-musl-cross/bin`
+
+2. ` install qemu ` fails with ` gcc version is too low `(centos) .Try to update it with the following command:
+    ```sh
+    yum install centos-release-scl
+    scl enable devtoolset-8 bash
+    ```
+    And then you can check its version by  running  the following commands:
+    ```sh
+    gcc -v
+    ```
+
