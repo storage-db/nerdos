@@ -24,6 +24,7 @@ bit_field = "0.10"
 tock-registers = { version = "0.7", default-features = false, features = ["register_types"] }
 memoffset = { version = "0.6", features = ["unstable_const"] }
 buddy_system_allocator = { version = "0.8", default-features = false }
+rbtree = "0.1"
 
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 x86 = "0.47"
