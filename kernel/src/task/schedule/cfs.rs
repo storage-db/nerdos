@@ -1,53 +1,4 @@
-//! A slice-based Red-Black tree
-//!
-//! Let's assume you want to create a tree holding up to 100 pairs of `u8 <-> f64`:
-//! ```
-//! use slice_rbtree::tree::{tree_size, RBTree, TreeParams};
-//! use std::mem::size_of;
-//!
-//! // RBTree requires input slice to have a proper size
-//! let size = tree_size(
-//!     TreeParams {
-//!         k_size: size_of::<u8>(),
-//!         v_size: size_of::<f64>(),
-//!     },
-//!     100,
-//! );
-//!
-//! let mut buffer = vec![0; size];
-//!
-//! let mut tree: RBTree<u8, f64, 1, 8> = RBTree::init_slice(&mut buffer).unwrap();
-//!
-//! // Insert some values
-//! tree.insert(15, 1.245).unwrap();
-//! tree.insert(17, 5.5).unwrap();
-//! tree.insert(19, 6.5).unwrap();
-//!
-//! // This type does not implement `Drop` trait - all the data is immediately serialized in the
-//! // slice, so this is actually a no-op
-//! drop(tree);
-//!
-//! let mut new_tree: RBTree<u8, f64, 1, 8> = unsafe { RBTree::from_slice(&mut buffer).unwrap() };
-//! assert_eq!(new_tree.get(&15), Some(1.245));
-//!
-//! // Create iterator of key-value pairs and collect in a `Vec`
-//! let pairs:Vec<_> = new_tree.pairs().collect();
-//! assert_eq!(pairs[0], (15, 1.245));
-//! assert_eq!(pairs[1], (17, 5.5));
-//! assert_eq!(pairs[2], (19, 6.5));
-//!
-//! // There are 3 ways to remove a value from the tree:
-//! // 1. remove() will deserialize the value to be removed
-//! assert_eq!(new_tree.remove(&17), Some(5.5));
-//! // 2. remove_entry() will deserialize both the key and the value
-//! assert_eq!(new_tree.remove_entry(&15), Some((15,1.245)));
-//! // 2. delete() will not deserialize anything, will return `true` if the value was present
-//! assert_eq!(new_tree.delete(&19), true);
-//! ```
-//!
-//! # Internal structure
-//! Internally, [`RBTree`] is just a wrapper around [`RBForest`](super::forest::RBForest) with `max_roots`
-//! equal to `1`. See [`RBForest`](super::forest::RBForest) docs for description of the internals.
+
 use borsh::{BorshDeserialize, BorshSerialize};
 use core::borrow::Borrow;
 use core::cmp::Ord;
@@ -292,7 +243,39 @@ where
 }
 
 #[cfg(test)]
-mod tests;
+fn init() {
+    let mut vec = create_vec(4, 4, 5);
 
-#[cfg(any(test, fuzzing))]
-pub mod internal_checks;
+    let mut tree = RBTree::<i32, u32, 4, 4>::init_slice(vec.as_mut_slice()).unwrap();
+    assert!(tree.is_empty());
+
+    assert_eq!(tree.insert(12, 32), Ok(None));
+    assert_eq!(tree.get(&12), Some(32));
+    assert_eq!(tree.len(), 1);
+
+    assert_eq!(tree.insert(32, 44), Ok(None));
+    assert_eq!(tree.get(&32), Some(44));
+    assert_eq!(tree.len(), 2);
+
+    assert_eq!(tree.insert(123, 321), Ok(None));
+    assert_eq!(tree.get(&123), Some(321));
+    assert_eq!(tree.len(), 3);
+
+    assert_eq!(tree.insert(123, 322), Ok(Some(321)));
+    assert_eq!(tree.get(&123), Some(322));
+    assert_eq!(tree.len(), 3);
+
+    assert_eq!(tree.insert(14, 32), Ok(None));
+    assert_eq!(tree.get(&14), Some(32));
+    assert_eq!(tree.len(), 4);
+
+    assert_eq!(tree.insert(1, 2), Ok(None));
+    assert_eq!(tree.insert(1, 4), Ok(Some(2)));
+    assert_eq!(tree.insert(3, 4), Err(Error::NoNodesLeft));
+
+    assert_eq!(tree.get(&15), None);
+
+    assert_eq!(tree.len(), 5);
+}
+
+
