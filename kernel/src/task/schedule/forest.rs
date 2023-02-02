@@ -1,3 +1,32 @@
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Codespaces
+Marketplace
+Explore
+ 
+@cargo-youth 
+solcery
+/
+slice-rbtree
+Public
+Fork your own copy of solcery/slice-rbtree
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+Insights
+slice-rbtree/src/forest.rs /
+@totikom
+totikom Fixed clippy warns
+Latest commit cbeac75 on Nov 27, 2022
+ History
+ 1 contributor
+1257 lines (1122 sloc)  46.3 KB
+
 //! A slice-based forest of Red-Black trees
 //!
 //! It sometimes happens, that you have to use a set of similar trees of unknown size. In that
@@ -1249,3 +1278,24 @@ where
             .finish()
     }
 }
+
+#[cfg(test)]
+pub(super) mod tests;
+
+#[cfg(any(test, fuzzing))]
+pub mod internal_checks;
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+slice-rbtree/forest.rs at main · solcery/slice-rbtree

@@ -291,4 +291,8 @@ where
     }
 }
 
+#[cfg(test)]
+mod tests;
 
+#[cfg(any(test, fuzzing))]
+pub mod internal_checks;

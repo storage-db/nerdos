@@ -97,7 +97,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "546c37ac5d9e56f55e73b677106873d9d9f5190605e41a856503623648488cae"
 
 [[package]]
-name = "nimbos"
+name = "nerdos"
 version = "0.1.0"
 dependencies = [
  "bit_field",
@@ -108,7 +108,6 @@ dependencies = [
  "log",
  "memoffset",
  "raw-cpuid",
- "rbtree",
  "riscv",
  "serde",
  "tock-registers",
@@ -133,12 +132,6 @@ checksum = "738bc47119e3eeccc7e94c4a506901aea5e7b4944ecd0829cbebf4af04ceda12"
 dependencies = [
  "bitflags",
 ]
-
-[[package]]
-name = "rbtree"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c30302bfb88dd71dce9b3577ab7f607a246ecee387717e937d49466a6d4d4760"
 
 [[package]]
 name = "riscv"

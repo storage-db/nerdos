@@ -32,7 +32,7 @@ make_args := ARCH=$(ARCH) PLATFORM=$(PLATFORM) MODE=$(MODE) LOG=$(LOG)
 
 # Paths
 target := ../targets/$(ARCH).json
-kernel_elf := target/$(ARCH)/$(MODE)/nimbos
+kernel_elf := target/$(ARCH)/$(MODE)/nerdos
 kernel_bin := $(kernel_elf).bin
 
 # Cargo features and build args
