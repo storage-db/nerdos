@@ -8,8 +8,8 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
 
 - [ ] CFS scheduler
 - [ ] FFI <-> alios implementation
-- [ ] Multi-core support
-- [ ] ...
+- [ ] SMP
+- [ ] Module Migration
 
 ## Development Environment
 
