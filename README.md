@@ -5,11 +5,11 @@
 A hobbyist operating system written in Rust based on [equation314/nimbos](https://github.com/equation314/nimbos).
 
 ## TODO
-
-- [ ] CFS scheduler
-- [ ] FFI <-> alios implementation
+- [ ] Net driver
+- [ ] CFS scheduler (I found the rbt implementation but cfs is still a bit difficult and takes time)
+- [ ] message queue
 - [ ] SMP
-- [ ] Module Migration
+
 
 ## Development Environment
 
