@@ -46,6 +46,9 @@ build_args := --no-default-features --features "$(features)" --target $(target) 
 ifeq ($(MODE), release)
   build_args += --release
 endif
+ifeq ($(MODe), debug)
+  build_args += --verbose
+endif
 
 # Binutils
 OBJDUMP := rust-objdump -d --print-imm-hex --x86-asm-syntax=intel
