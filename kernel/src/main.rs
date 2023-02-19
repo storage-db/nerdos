@@ -12,6 +12,9 @@ extern crate cfg_if;
 #[macro_use]
 extern crate log;
 
+#[cfg(riscv)]
+extern crate riscv;
+
 #[macro_use]
 mod logging;
 
@@ -27,7 +30,10 @@ mod syscall;
 mod task;
 mod timer;
 mod utils;
-
+mod fs;
+mod net;
+#[path = "boards/qemu.rs"]
+mod board;
 #[cfg(not(test))]
 mod lang_items;
 

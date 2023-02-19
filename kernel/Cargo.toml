@@ -24,6 +24,12 @@ bit_field = "0.10"
 tock-registers = { version = "0.7", default-features = false, features = ["register_types"] }
 memoffset = { version = "0.6", features = ["unstable_const"] }
 buddy_system_allocator = { version = "0.8", default-features = false }
+lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
+# virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers", rev = "f30d426" }
+virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers", rev = "4ee80e5" }
+easy-fs = { path = "../easy-fs" }
+lose-net-stack = { git = "https://github.com/yfblock/lose-net-stack", rev = "3f467dd" }
+
 
 
 [target.'cfg(target_arch = "x86_64")'.dependencies]
@@ -36,7 +42,7 @@ raw-cpuid = "10.3"
 cortex-a = "7.2"
 
 [target.'cfg(any(target_arch = "riscv32", target_arch = "riscv64"))'.dependencies]
-riscv = "0.8"
+riscv = { git = "https://github.com/rcore-os/riscv", features = ["inline-asm"] }
 
 [build-dependencies]
 toml = "0.5"

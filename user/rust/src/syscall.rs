@@ -5,7 +5,10 @@ pub use crate::arch::sys_clone;
 
 pub const SYSCALL_READ: usize = 0;
 pub const SYSCALL_WRITE: usize = 1;
+const SYSCALL_OPEN: usize = 2;
+const SYSCALL_CLOSE: usize = 3;
 pub const SYSCALL_YIELD: usize = 24;
+const SYSCALL_CONNECT: usize = 29;
 pub const SYSCALL_GETPID: usize = 39;
 pub const SYSCALL_CLONE: usize = 56;
 pub const SYSCALL_FORK: usize = 57;
@@ -24,6 +27,21 @@ pub fn sys_read(fd: usize, buffer: &mut [u8]) -> isize {
 
 pub fn sys_write(fd: usize, buffer: &[u8]) -> isize {
     syscall(SYSCALL_WRITE, [fd, buffer.as_ptr() as usize, buffer.len()])
+}
+
+pub fn sys_open(path: &str, flags: u32) -> isize {
+    syscall(SYSCALL_OPEN, [path.as_ptr() as usize, flags as usize, 0])
+}
+
+pub fn sys_close(fd: usize) -> isize {
+    syscall(SYSCALL_CLOSE, [fd, 0, 0])
+}
+
+pub fn sys_connect(dest: u32, sport: u16, dport: u16) -> isize {
+    syscall(
+        SYSCALL_CONNECT,
+        [dest as usize, sport as usize, dport as usize],
+    )
 }
 
 pub fn sys_exit(exit_code: i32) -> ! {

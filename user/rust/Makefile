@@ -18,7 +18,7 @@ apps := $(wildcard $(app_dir)/*.rs)
 elfs := $(patsubst $(app_dir)/%.rs, $(target_dir)/%, $(apps))
 asms := $(patsubst %, %.asm, $(elfs))
 
-build_args := --target $(target) -Zbuild-std=core
+build_args := --target $(target) -Zbuild-std=core,alloc
 ifeq ($(MODE), release)
   build_args += --release
 endif

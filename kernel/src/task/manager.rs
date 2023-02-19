@@ -8,7 +8,7 @@ use crate::sync::{LazyInit, SpinNoIrqLock};
 use crate::timer::{current_time, TimeValue};
 
 pub struct TaskManager {
-    scheduler: Scheduler,
+    pub scheduler: Scheduler,
 }
 
 impl TaskManager {
@@ -23,7 +23,7 @@ impl TaskManager {
     }
 
     pub fn spawn(&mut self, t: Arc<Task>) {
-        assert!(t.state() == TaskState::Ready);
+        assert!(t.inner_exclusive_access().state() == TaskState::Ready);
         self.scheduler.push_ready_task_back(t);
     }
 
@@ -33,13 +33,13 @@ impl TaskManager {
             curr_task.pid(),
             next_task.pid()
         );
-        next_task.set_state(TaskState::Running);
+        next_task.inner_exclusive_access().set_state(TaskState::Running);
         if Arc::ptr_eq(curr_task, &next_task) {
             return;
         }
 
-        let curr_ctx_ptr = curr_task.context().as_ptr();
-        let next_ctx_ptr = next_task.context().as_ptr();
+        let curr_ctx_ptr = curr_task.inner_exclusive_access().context().as_ptr();
+        let next_ctx_ptr = next_task.inner_exclusive_access().context().as_ptr();
 
         // Decrement the strong reference count of `curr_task` and `next_task`,
         // but won't drop them until `waitpid()` is called,
@@ -53,7 +53,7 @@ impl TaskManager {
     }
 
     fn resched(&mut self, curr_task: &CurrentTask) {
-        assert!(curr_task.state() != TaskState::Running);
+        assert!(curr_task.inner_exclusive_access().state() != TaskState::Running);
         if let Some(next_task) = self.scheduler.pick_next_task() {
             // let `next_task` hold its ownership to avoid clone
             self.switch_to(curr_task, next_task);
@@ -63,8 +63,8 @@ impl TaskManager {
     }
 
     pub fn yield_current(&mut self, curr_task: &CurrentTask) {
-        assert!(curr_task.state() == TaskState::Running);
-        curr_task.set_state(TaskState::Ready);
+        assert!(curr_task.inner_exclusive_access().state() == TaskState::Running);
+        curr_task.inner_exclusive_access().set_state(TaskState::Ready);
         if !curr_task.is_idle() {
             self.scheduler.push_ready_task_back(curr_task.clone_task());
         }
@@ -72,8 +72,8 @@ impl TaskManager {
     }
 
     pub fn unblock_task(&mut self, task: Arc<Task>) -> bool {
-        if task.state() == TaskState::Sleeping {
-            task.set_state(TaskState::Ready);
+        if task.inner_exclusive_access().state() == TaskState::Sleeping {
+            task.inner_exclusive_access().set_state(TaskState::Ready);
             self.scheduler.push_ready_task_front(task);
             true
         } else {
@@ -83,14 +83,14 @@ impl TaskManager {
 
     pub fn block_current(&mut self, curr_task: &CurrentTask) {
         // assert not in spin lock
-        assert!(curr_task.state() == TaskState::Running);
+        assert!(curr_task.inner_exclusive_access().state() == TaskState::Running);
         assert!(!curr_task.is_idle());
-        curr_task.set_state(TaskState::Sleeping);
+        curr_task.inner_exclusive_access().set_state(TaskState::Sleeping);
         self.resched(curr_task);
     }
 
     pub fn sleep_current(&mut self, curr_task: &CurrentTask, deadline: TimeValue) {
-        assert!(curr_task.state() == TaskState::Running);
+        assert!(curr_task.inner_exclusive_access().state() == TaskState::Running);
         assert!(!curr_task.is_idle());
         if current_time() < deadline {
             let curr_task_clone = curr_task.clone_task();
@@ -103,35 +103,36 @@ impl TaskManager {
     }
 
     pub fn exit_current(&mut self, curr_task: &CurrentTask, exit_code: i32) -> ! {
+        let inner = curr_task.inner_exclusive_access();
         assert!(!curr_task.is_idle());
         assert!(!curr_task.is_root());
-        assert!(curr_task.state() == TaskState::Running);
+        assert!(inner.state() == TaskState::Running);
 
         // Make all child tasks as the children of the root task
         {
             let mut notify = false;
-            let mut children = curr_task.children.lock();
+            let mut children = inner.children.lock();
             for c in children.iter() {
                 ROOT_TASK.add_child(c);
-                if c.state() == TaskState::Zombie {
+                if c.inner_exclusive_access().state() == TaskState::Zombie {
                     notify = true;
                 }
             }
             children.clear();
             if notify {
-                ROOT_TASK.wait_children_exit.notify_locked(self);
+                ROOT_TASK.inner_exclusive_access().wait_children_exit.notify_locked(self);
             }
         }
 
-        curr_task.set_state(TaskState::Zombie);
-        curr_task.set_exit_code(exit_code);
+        curr_task.inner_exclusive_access().set_state(TaskState::Zombie);
+        curr_task.inner_exclusive_access().set_exit_code(exit_code);
 
         curr_task
-            .parent
+            .inner_exclusive_access().parent
             .lock()
             .upgrade()
             .unwrap()
-            .wait_children_exit
+            .inner_exclusive_access().wait_children_exit
             .notify_locked(self);
 
         self.resched(curr_task);
@@ -140,7 +141,7 @@ impl TaskManager {
 
     #[allow(dead_code)]
     pub fn dump_all_tasks(&self) {
-        if ROOT_TASK.children.lock().len() == 0 {
+        if ROOT_TASK.inner_exclusive_access().children.lock().len() == 0 {
             return;
         }
         println!(
@@ -148,12 +149,14 @@ impl TaskManager {
             "PID", "PPID", "#CHILD", "#REF",
         );
         ROOT_TASK.traverse(&|t: &Arc<Task>| {
+            let inner = t.inner_exclusive_access();
             let pid = t.pid().as_usize();
             let ref_count = Arc::strong_count(t);
-            let children_count = t.children.lock().len();
-            let state = t.state();
-            let shared = if t.is_shared_with_parent() { 'S' } else { ' ' };
-            if let Some(p) = t.parent.lock().upgrade() {
+            let children_count = inner.children.lock().len();
+            let state = inner.state();
+            let shared = if inner.is_shared_with_parent() { 'S' } else { ' ' };
+            let parent = inner.parent.lock();
+            if let Some(p) = parent.upgrade() {
                 let ppid = p.pid().as_usize();
                 println!(
                     "{:>4}{}{:>4} {:>6} {:>4}  {:?}",
@@ -194,8 +197,8 @@ impl<T> TaskLockedCell<T> {
     }
 }
 
-pub(super) static TASK_MANAGER: LazyInit<SpinNoIrqLock<TaskManager>> = LazyInit::new();
+pub static TASK_MANAGER: LazyInit<SpinNoIrqLock<TaskManager>> = LazyInit::new();
 
-pub(super) fn init() {
+pub fn init() {
     TASK_MANAGER.init_by(SpinNoIrqLock::new(TaskManager::new()));
 }

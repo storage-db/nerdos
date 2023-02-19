@@ -8,7 +8,7 @@ pub use structs::{CurrentTask, Task, TaskId};
 use alloc::sync::Arc;
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use self::manager::TASK_MANAGER;
+pub use self::manager::TASK_MANAGER;
 use self::structs::ROOT_TASK;
 use crate::arch::instructions;
 
@@ -59,7 +59,7 @@ pub fn handle_irq(vector: usize) {
     let curr = current();
     curr.clear_need_resched();
     crate::drivers::interrupt::handle_irq(vector);
-    if curr.need_resched() {
+    if curr.inner_exclusive_access().need_resched() {
         curr.yield_now();
     }
 }

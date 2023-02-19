@@ -19,7 +19,15 @@ impl PhysFrame {
             start_paddr: PhysAddr::new(value * PAGE_SIZE),
         })
     }
-
+    pub fn frame_alloc_more(num: usize) -> Option<Vec<PhysFrame>> {
+        FRAME_ALLOCATOR.lock().alloc_more(num).map(|x| {
+            x.iter()
+                .map(|&value| Self {
+                    start_paddr: PhysAddr::new(value * PAGE_SIZE),
+                })
+                .collect()
+        })
+    }
     pub fn alloc_zero() -> Option<Self> {
         let mut f = Self::alloc()?;
         f.zero();

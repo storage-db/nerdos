@@ -35,7 +35,15 @@ impl FreeListAllocator {
             Some(self.next_available - 1)
         }
     }
-
+    pub fn alloc_more(&mut self, pages: usize) -> Option<Vec<usize>> {
+        if self.next_available + pages >= self.range.end {
+            None
+        } else {
+            self.next_available += pages;
+            let v: Vec<usize> = (self.next_available - pages..self.next_available).collect();
+            Some(v)
+        }
+    }
     pub fn dealloc(&mut self, value: usize) {
         // validity check
         assert!(value >= self.range.start);

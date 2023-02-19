@@ -34,6 +34,8 @@ fn parse_platform_config(arch: &str, platform: &str) -> Result<()> {
     let config_content = std::fs::read_to_string(config_path)?;
     let config: Value = toml::from_str(&config_content)?;
 
+    println!("parse platform step 1");
+
     // Generate config.rs
     let mut out_file = File::create("src/platform/config.rs")?;
     writeln!(out_file, "// {}-{}", arch, platform)?;
