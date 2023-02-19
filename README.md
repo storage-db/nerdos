@@ -9,6 +9,7 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
 - [ ] CFS scheduler (I found the rbt implementation but cfs is still a bit difficult and takes time)
 - [ ] message queue
 - [ ] SMP
+- [ ] Grub start
 
 
 ## Development Environment
