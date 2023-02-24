@@ -36,7 +36,9 @@ impl SchedulerTrait for RRScheduler {
     }
 
     fn push_ready_task_back(&mut self, t: Arc<Task>) {
+        println!("1");
         t.inner_exclusive_access().sched_state().reset();
+        println!("2");
         self.ready_queue.push_back(t);
     }
 

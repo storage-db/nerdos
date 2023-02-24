@@ -1,17 +1,17 @@
 use super::BlockDevice;
-use crate::sync::{UPSafeCell};
+use crate::sync::{UPIntrFreeCell};
 use virtio_drivers::{ VirtIOBlk, VirtIOHeader};
 use crate::drivers::bus::virtio::VirtioHal;
 #[allow(unused)]
 const VIRTIO0: usize = 0x10001000;
-pub struct VirtIOBlock(UPSafeCell<VirtIOBlk<'static, VirtioHal>>);
+pub struct VirtIOBlock(UPIntrFreeCell<VirtIOBlk<'static, VirtioHal>>);
 
 
 impl VirtIOBlock {
     #[allow(unused)]
     pub fn new() -> Self {
         unsafe {
-            Self(UPSafeCell::new(
+            Self(UPIntrFreeCell::new(
                 VirtIOBlk::<VirtioHal>::new(&mut *(VIRTIO0 as *mut VirtIOHeader)).unwrap(),
             ))
         }

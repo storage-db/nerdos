@@ -21,7 +21,6 @@ pub fn is_init() -> bool {
 pub fn init() {
     println!("Initializing task manager...");
     manager::init();
-
     ROOT_TASK.init_by(Task::new_kernel(
         |_| loop {
             let curr_task = current();

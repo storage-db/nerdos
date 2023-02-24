@@ -93,7 +93,9 @@ pub fn rust_main() -> ! {
     );
 
     mm::init_heap_early();
+
     logging::init();
+
     info!("Logging is enabled.");
 
     arch::init();
@@ -107,5 +109,7 @@ pub fn rust_main() -> ! {
     timer::init();
     task::init();
     loader::list_apps();
+    // 问题在这里
     task::run();
+
 }

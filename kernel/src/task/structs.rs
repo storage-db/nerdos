@@ -14,7 +14,8 @@ use alloc::vec;
 use alloc::{boxed::Box, vec::Vec};
 use core::cell::RefMut;
 use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU8, AtomicUsize, Ordering};
-use crate::sync::UPSafeCell;
+use crate::sync::UPIntrFreeCell;
+use crate::sync::UPIntrRefMut;
 pub(super) static ROOT_TASK: LazyInit<Arc<Task>> = LazyInit::new();
 
 #[derive(Debug)]
@@ -39,7 +40,7 @@ pub struct Task {
     id: TaskId,
     kstack: Stack<KERNEL_STACK_SIZE>,
     // mutable
-    pub inner: UPSafeCell<TaskInner>,
+    pub inner: UPIntrFreeCell<TaskInner>,
 }
 pub struct TaskInner {
     is_kernel: bool,
@@ -88,7 +89,7 @@ impl From<u8> for TaskState {
 }
 
 impl Task {
-    pub fn inner_exclusive_access(&self) -> RefMut<'_, TaskInner> {
+    pub fn inner_exclusive_access(&self) ->UPIntrRefMut<'_, TaskInner> {
         self.inner.exclusive_access()
     }
     fn new_common(id: TaskId) -> Self {
@@ -96,7 +97,7 @@ impl Task {
             id,
             kstack: Stack::default(),
             inner: unsafe {
-                UPSafeCell::new(TaskInner {
+                UPIntrFreeCell::new(TaskInner {
                     is_kernel: false,
                     is_shared: false,
                     entry: EntryState::Kernel { pc: 0, arg: 0 },
@@ -226,8 +227,6 @@ impl Task {
     pub const fn pid(&self) -> TaskId {
         self.id
     }
-
-
     pub const fn is_idle(&self) -> bool {
         self.id.as_usize() == 0
     }

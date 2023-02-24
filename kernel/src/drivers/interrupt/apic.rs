@@ -11,7 +11,7 @@ use crate::sync::{LazyInit, PerCpuData, SpinNoIrqLock};
 use crate::utils::irq_handler::{IrqHandler, IrqHandlerTable};
 
 pub mod vectors {
-    pub const PIT_GSI: usize = 2; // TODO: lookup ACPI tables
+    pub const PIT_GSI: usize = 2; // TODO: lookup APIC tables
     pub const PIT_VECTOR: usize = 0x20;
 
     pub const APIC_TIMER_VECTOR: usize = 0xf0;

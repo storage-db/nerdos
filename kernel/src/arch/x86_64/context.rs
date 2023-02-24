@@ -162,6 +162,8 @@ impl TaskContext {
     }
 
     pub fn switch_to(&mut self, next_ctx: &Self) {
+        println!("6");
+
         unsafe {
             PerCpu::current_arch_data()
                 .as_mut()

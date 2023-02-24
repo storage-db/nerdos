@@ -1,11 +1,11 @@
-use crate::sync::UPSafeCell;
+use crate::sync::UPIntrFreeCell;
 use alloc::vec::Vec;
 use lazy_static::*;
 use virtio_drivers::Hal;
 use crate::mm::PhysFrame;
 lazy_static! {
-    static ref QUEUE_FRAMES: UPSafeCell<Vec<PhysFrame>> =
-        unsafe { UPSafeCell::new(Vec::new()) };
+    static ref QUEUE_FRAMES: UPIntrFreeCell<Vec<PhysFrame>> =
+        unsafe { UPIntrFreeCell::new(Vec::new()) };
 }
 
 pub struct VirtioHal;

@@ -2,12 +2,12 @@
 //! we need to wrap `Inode` into `Arc`,but `Mutex` in `Inode` prevents
 //! file systems from being accessed simultaneously
 //!
-//! `UPSafeCell<OSInodeInner>` -> `OSInode`: for static `ROOT_INODE`,we
-//! need to wrap `OSInodeInner` into `UPSafeCell`
+//! `UPIntrFreeCell<OSInodeInner>` -> `OSInode`: for static `ROOT_INODE`,we
+//! need to wrap `OSInodeInner` into `UPIntrFreeCell`
 use super::File;
 use crate::drivers::block::BLOCK_DEVICE;
 use crate::mm::UserBuffer;
-use crate::sync::UPSafeCell;
+use crate::sync::UPIntrFreeCell;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 use bitflags::*;
@@ -18,9 +18,9 @@ use lazy_static::*;
 pub struct OSInode {
     readable: bool,
     writable: bool,
-    inner: UPSafeCell<OSInodeInner>,
+    inner: UPIntrFreeCell<OSInodeInner>,
 }
-/// The OS inode inner in 'UPSafeCell'
+/// The OS inode inner in 'UPIntrFreeCell'
 pub struct OSInodeInner {
     offset: usize,
     inode: Arc<Inode>,
@@ -32,7 +32,7 @@ impl OSInode {
         Self {
             readable,
             writable,
-            inner: unsafe { UPSafeCell::new(OSInodeInner { offset: 0, inode }) },
+            inner: unsafe { UPIntrFreeCell::new(OSInodeInner { offset: 0, inode }) },
         }
     }
     /// Read all data inside a inode into vector

@@ -9,15 +9,15 @@ use lose_net_stack::{results::Packet, LoseStack, MacAddress};
 use crate::{
     drivers::NET_DEVICE,
     net::socket::{get_socket, push_data},
-    sync::UPSafeCell,
+    sync::UPIntrFreeCell,
 };
 
-pub struct NetStack(UPSafeCell<LoseStack>);
+pub struct NetStack(UPIntrFreeCell<LoseStack>);
 
 impl NetStack {
     pub fn new() -> Self {
         unsafe {
-            NetStack(UPSafeCell::new(LoseStack::new(
+            NetStack(UPIntrFreeCell::new(LoseStack::new(
                 IPv4::new(10, 0, 2, 15),
                 MacAddress::new([0x52, 0x54, 0x00, 0x12, 0x34, 0x56]),
             )))

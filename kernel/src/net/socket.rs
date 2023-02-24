@@ -3,7 +3,7 @@ use alloc::vec::Vec;
 use lazy_static::lazy_static;
 use lose_net_stack::IPv4;
 
-use crate::sync::UPSafeCell;
+use crate::sync::UPIntrFreeCell;
 
 // TODO: specify the protocol, TCP or UDP
 pub struct Socket {
@@ -14,8 +14,8 @@ pub struct Socket {
 }
 
 lazy_static! {
-    static ref SOCKET_TABLE: UPSafeCell<Vec<Option<Socket>>> =
-        unsafe { UPSafeCell::new(Vec::new()) };
+    static ref SOCKET_TABLE: UPIntrFreeCell<Vec<Option<Socket>>> =
+        unsafe { UPIntrFreeCell::new(Vec::new()) };
 }
 
 pub fn get_socket(raddr: IPv4, lport: u16, rport: u16) -> Option<usize> {

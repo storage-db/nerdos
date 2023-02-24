@@ -1,7 +1,7 @@
 use core::any::Any;
 
 use crate::drivers::virtio::VirtioHal;
-use crate::sync::UPSafeCell;
+use crate::sync::UPIntrFreeCell;
 use alloc::sync::Arc;
 use lazy_static::*;
 use virtio_drivers::{VirtIOHeader, VirtIONet};
@@ -17,9 +17,9 @@ pub trait NetDevice: Send + Sync + Any {
     fn receive(&self, data: &mut [u8]) -> usize;
 }
 #[cfg(riscv)]
-pub struct VirtIONetWrapper(UPSafeCell<VirtIONet<'static, VirtioHal>>);
+pub struct VirtIONetWrapper(UPIntrFreeCell<VirtIONet<'static, VirtioHal>>);
 
-pub struct VirtIONetWrapper(UPSafeCell<VirtIONet<'static, VirtioHal>>);
+pub struct VirtIONetWrapper(UPIntrFreeCell<VirtIONet<'static, VirtioHal>>);
 impl NetDevice for VirtIONetWrapper {
     fn transmit(&self, data: &[u8]) {
         self.0
@@ -41,7 +41,7 @@ impl VirtIONetWrapper {
         unsafe {
             let virtio = VirtIONet::<VirtioHal>::new(&mut *(VIRTIO8 as *mut VirtIOHeader))
                 .expect("can't create net device by virtio");
-            VirtIONetWrapper(UPSafeCell::new(virtio))
+            VirtIONetWrapper(UPIntrFreeCell::new(virtio))
         }
     }
 }

@@ -33,27 +33,34 @@ impl TaskManager {
             curr_task.pid(),
             next_task.pid()
         );
-        next_task.inner_exclusive_access().set_state(TaskState::Running);
+        next_task
+            .inner_exclusive_access()
+            .set_state(TaskState::Running);
+        println!("3");
         if Arc::ptr_eq(curr_task, &next_task) {
             return;
         }
 
         let curr_ctx_ptr = curr_task.inner_exclusive_access().context().as_ptr();
         let next_ctx_ptr = next_task.inner_exclusive_access().context().as_ptr();
+        println!("5");
 
         // Decrement the strong reference count of `curr_task` and `next_task`,
         // but won't drop them until `waitpid()` is called,
         assert!(Arc::strong_count(curr_task) > 1);
         assert!(Arc::strong_count(&next_task) > 1);
-
         unsafe {
             PerCpu::set_current_task(next_task);
+            // 问题在这里
+            // 可能是函数传参导致的
             (*curr_ctx_ptr).switch_to(&*next_ctx_ptr);
         }
+
     }
 
     fn resched(&mut self, curr_task: &CurrentTask) {
         assert!(curr_task.inner_exclusive_access().state() != TaskState::Running);
+        println!("2");
         if let Some(next_task) = self.scheduler.pick_next_task() {
             // let `next_task` hold its ownership to avoid clone
             self.switch_to(curr_task, next_task);
@@ -63,9 +70,12 @@ impl TaskManager {
     }
 
     pub fn yield_current(&mut self, curr_task: &CurrentTask) {
-        assert!(curr_task.inner_exclusive_access().state() == TaskState::Running);
-        curr_task.inner_exclusive_access().set_state(TaskState::Ready);
-        if !curr_task.is_idle() {
+        let inner = curr_task.0.inner_exclusive_access();
+        assert!(inner.state() == TaskState::Running);
+        inner.set_state(TaskState::Ready);
+        drop(inner);
+        println!("1");
+        if !curr_task.0.is_idle() {
             self.scheduler.push_ready_task_back(curr_task.clone_task());
         }
         self.resched(curr_task);
@@ -85,7 +95,9 @@ impl TaskManager {
         // assert not in spin lock
         assert!(curr_task.inner_exclusive_access().state() == TaskState::Running);
         assert!(!curr_task.is_idle());
-        curr_task.inner_exclusive_access().set_state(TaskState::Sleeping);
+        curr_task
+            .inner_exclusive_access()
+            .set_state(TaskState::Sleeping);
         self.resched(curr_task);
     }
 
@@ -120,19 +132,26 @@ impl TaskManager {
             }
             children.clear();
             if notify {
-                ROOT_TASK.inner_exclusive_access().wait_children_exit.notify_locked(self);
+                ROOT_TASK
+                    .inner_exclusive_access()
+                    .wait_children_exit
+                    .notify_locked(self);
             }
         }
 
-        curr_task.inner_exclusive_access().set_state(TaskState::Zombie);
+        curr_task
+            .inner_exclusive_access()
+            .set_state(TaskState::Zombie);
         curr_task.inner_exclusive_access().set_exit_code(exit_code);
 
         curr_task
-            .inner_exclusive_access().parent
+            .inner_exclusive_access()
+            .parent
             .lock()
             .upgrade()
             .unwrap()
-            .inner_exclusive_access().wait_children_exit
+            .inner_exclusive_access()
+            .wait_children_exit
             .notify_locked(self);
 
         self.resched(curr_task);
@@ -154,7 +173,11 @@ impl TaskManager {
             let ref_count = Arc::strong_count(t);
             let children_count = inner.children.lock().len();
             let state = inner.state();
-            let shared = if inner.is_shared_with_parent() { 'S' } else { ' ' };
+            let shared = if inner.is_shared_with_parent() {
+                'S'
+            } else {
+                ' '
+            };
             let parent = inner.parent.lock();
             if let Some(p) = parent.upgrade() {
                 let ppid = p.pid().as_usize();
