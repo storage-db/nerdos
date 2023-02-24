@@ -17,7 +17,7 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
 1. Clone the repository
 
     ```sh
-    https://github.com/cargo-youth/nerdos
+    git clone https://github.com/cargo-youth/nerdos
     ```
 
 2. Switch `rust` toolchain to nightly
