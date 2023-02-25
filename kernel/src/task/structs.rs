@@ -7,6 +7,8 @@ use crate::fs::{File, Stdin, Stdout};
 use crate::loader;
 use crate::mm::{kernel_aspace, MemorySet, VirtAddr};
 use crate::percpu::PerCpu;
+use crate::sync::UPIntrFreeCell;
+use crate::sync::UPIntrRefMut;
 use crate::sync::{LazyInit, Mutex};
 use crate::timer::TimeValue;
 use alloc::sync::{Arc, Weak};
@@ -14,8 +16,6 @@ use alloc::vec;
 use alloc::{boxed::Box, vec::Vec};
 use core::cell::RefMut;
 use core::sync::atomic::{AtomicBool, AtomicI32, AtomicU8, AtomicUsize, Ordering};
-use crate::sync::UPIntrFreeCell;
-use crate::sync::UPIntrRefMut;
 pub(super) static ROOT_TASK: LazyInit<Arc<Task>> = LazyInit::new();
 
 #[derive(Debug)]
@@ -39,22 +39,23 @@ pub enum TaskState {
 pub struct Task {
     id: TaskId,
     kstack: Stack<KERNEL_STACK_SIZE>,
+    need_resched: AtomicBool,
+    state: AtomicU8,
+    sched_state: SchedulerState,
+    ctx: TaskLockedCell<TaskContext>,
+    is_kernel: bool,
+    entry: EntryState,
+    vm: Option<Arc<Mutex<MemorySet>>>,
+    is_shared: bool,
+    pub(super) wait_children_exit: WaitCurrent,
+    pub(super) children: Mutex<Vec<Arc<Task>>>,
+    exit_code: AtomicI32,
+    pub(super) parent: Mutex<Weak<Task>>,
     // mutable
     pub inner: UPIntrFreeCell<TaskInner>,
 }
 pub struct TaskInner {
-    is_kernel: bool,
-    is_shared: bool,
-    entry: EntryState,
-    state: AtomicU8,
-    exit_code: AtomicI32,
-    need_resched: AtomicBool,
-    sched_state: SchedulerState,
-    ctx: TaskLockedCell<TaskContext>,
-    pub(super) wait_children_exit: WaitCurrent,
-    vm: Option<Arc<Mutex<MemorySet>>>,
-    pub(super) parent: Mutex<Weak<Task>>,
-    pub(super) children: Mutex<Vec<Arc<Task>>>,
+
     pub fd_table: Vec<Option<Arc<dyn File + Send + Sync>>>,
 }
 impl TaskId {
@@ -89,27 +90,27 @@ impl From<u8> for TaskState {
 }
 
 impl Task {
-    pub fn inner_exclusive_access(&self) ->UPIntrRefMut<'_, TaskInner> {
+    pub fn inner_exclusive_access(&self) -> UPIntrRefMut<'_, TaskInner> {
         self.inner.exclusive_access()
     }
     fn new_common(id: TaskId) -> Self {
         Self {
             id,
             kstack: Stack::default(),
+            need_resched: AtomicBool::new(false),
+            state: AtomicU8::new(TaskState::Ready as u8),
+            sched_state: SchedulerState::default(),
+            ctx: TaskLockedCell::new(TaskContext::default()),
+            is_kernel: false,
+            entry: EntryState::Kernel { pc: 0, arg: 0 },
+            vm: None,
+            is_shared: false,
+            wait_children_exit: WaitCurrent::new(),
+            children: Mutex::new(Vec::new()),
+            exit_code: AtomicI32::new(0),
+            parent: Mutex::new(Weak::default()),
             inner: unsafe {
                 UPIntrFreeCell::new(TaskInner {
-                    is_kernel: false,
-                    is_shared: false,
-                    entry: EntryState::Kernel { pc: 0, arg: 0 },
-                    state: AtomicU8::new(TaskState::Ready as u8),
-                    exit_code: AtomicI32::new(0),
-                    need_resched: AtomicBool::new(false),
-                    sched_state: SchedulerState::default(),
-                    ctx: TaskLockedCell::new(TaskContext::default()),
-                    wait_children_exit: WaitCurrent::new(),
-                    vm: None,
-                    parent: Mutex::new(Weak::default()),
-                    children: Mutex::new(Vec::new()),
                     fd_table: vec![
                         // 0 -> stdin
                         Some(Arc::new(Stdin)),
@@ -124,21 +125,19 @@ impl Task {
     }
 
     pub(super) fn add_child(self: &Arc<Self>, child: &Arc<Task>) {
-        let child_inner = child.inner_exclusive_access();
-        *child_inner.parent.lock() = Arc::downgrade(self);
-        self.inner_exclusive_access().children.lock().push(child.clone());
+        *child.parent.lock() = Arc::downgrade(self);
+        self.children.lock().push(child.clone());
     }
 
     pub fn new_idle() -> Arc<Self> {
-        let t = Self::new_common(TaskId::IDLE_TASK_ID);
-        t.inner_exclusive_access().is_kernel = true;
+        let mut t = Self::new_common(TaskId::IDLE_TASK_ID);
+        t.is_kernel = true;
         Arc::new(t)
     }
 
     pub fn init_idle(&mut self) {
-        let mut inner = self.inner_exclusive_access();
-        inner.set_state(TaskState::Running);
-        inner.ctx.get_mut().init(
+        self.set_state(TaskState::Running);
+        self.ctx.get_mut().init(
             0,
             self.kstack.top(),
             kernel_aspace().page_table_root(),
@@ -147,20 +146,18 @@ impl Task {
     }
 
     pub fn new_kernel(entry: fn(usize) -> usize, arg: usize) -> Arc<Self> {
-        let t = Self::new_common(TaskId::alloc());
-        let mut inner = t.inner_exclusive_access();
-        inner.is_kernel = true;
-        inner.entry = EntryState::Kernel {
+        let mut t = Self::new_common(TaskId::alloc());
+        t.is_kernel = true;
+        t.entry = EntryState::Kernel {
             pc: entry as usize,
             arg,
         };
-        inner.ctx.get_mut().init(
+        t.ctx.get_mut().init(
             task_entry as _,
             t.kstack.top(),
             kernel_aspace().page_table_root(),
             true,
         );
-        drop(inner);
         let t = Arc::new(t);
         if !t.is_root() {
             ROOT_TASK.add_child(&t);
@@ -173,52 +170,44 @@ impl Task {
         let mut vm = MemorySet::new();
         let (entry, ustack_top) = vm.load_user(elf_data);
 
-        let t = Self::new_common(TaskId::alloc());
-        let mut inner = t.inner_exclusive_access();
-        inner.entry = EntryState::User(Box::new(TrapFrame::new_user(entry, ustack_top, 0)));
-        inner
-            .ctx
+        let mut t = Self::new_common(TaskId::alloc());
+        t.entry = EntryState::User(Box::new(TrapFrame::new_user(entry, ustack_top, 0)));
+        t.ctx
             .get_mut()
             .init(task_entry as _, t.kstack.top(), vm.page_table_root(), false);
-        inner.vm = Some(Arc::new(Mutex::new(vm)));
-        drop(inner);
+        t.vm = Some(Arc::new(Mutex::new(vm)));
         let t = Arc::new(t);
         ROOT_TASK.add_child(&t);
         t
     }
 
     pub fn new_clone(self: &Arc<Self>, newsp: usize, tf: &TrapFrame) -> Arc<Self> {
-        assert!(!self.inner_exclusive_access().is_kernel_task());
-        let t = Self::new_common(TaskId::alloc());
-        let mut inner = t.inner_exclusive_access();
-        inner.is_shared = true;
-        let vm = self.inner_exclusive_access().vm.as_ref().unwrap().clone();
-        inner.entry = EntryState::User(Box::new(tf.new_clone(VirtAddr::new(newsp))));
-        inner.ctx.get_mut().init(
+        assert!(!self.is_kernel_task());
+        let mut t = Self::new_common(TaskId::alloc());
+        t.is_shared = true;
+        let vm = self.vm.as_ref().unwrap().clone();
+        t.entry = EntryState::User(Box::new(tf.new_clone(VirtAddr::new(newsp))));
+        t.ctx.get_mut().init(
             task_entry as _,
             t.kstack.top(),
             vm.lock().page_table_root(),
             false,
         );
-        inner.vm = Some(vm);
-        drop(inner);
+        t.vm = Some(vm);
         let t = Arc::new(t);
         self.add_child(&t);
         t
     }
 
     pub fn new_fork(self: &Arc<Self>, tf: &TrapFrame) -> Arc<Self> {
-        assert!(!self.inner_exclusive_access().is_kernel_task());
-        let t = Self::new_common(TaskId::alloc());
-        let mut inner = t.inner_exclusive_access();
-        let vm = self.inner_exclusive_access().vm.as_ref().unwrap().lock().dup();
-        inner.entry = EntryState::User(Box::new(tf.new_fork()));
-        inner
-            .ctx
+        assert!(!self.is_kernel_task());
+        let mut t = Self::new_common(TaskId::alloc());
+        let vm = self.vm.as_ref().unwrap().lock().dup();
+        t.entry = EntryState::User(Box::new(tf.new_fork()));
+        t.ctx
             .get_mut()
             .init(task_entry as _, t.kstack.top(), vm.page_table_root(), false);
-        inner.vm = Some(Arc::new(Mutex::new(vm)));
-        drop(inner);
+        t.vm = Some(Arc::new(Mutex::new(vm)));
         let t = Arc::new(t);
         self.add_child(&t);
         t
@@ -235,22 +224,13 @@ impl Task {
     }
     pub(super) fn traverse(self: &Arc<Self>, func: &impl Fn(&Arc<Task>)) {
         func(self);
-        for c in self.inner_exclusive_access().children.lock().iter() {
+        for c in self.children.lock().iter() {
             c.traverse(func);
         }
     }
-}
-impl TaskInner {
-    pub fn fd_table(&self) -> &Vec<Option<Arc<dyn File + Send + Sync>>> {
-        &self.fd_table
-    }
-    pub const fn is_kernel_task(&self) -> bool {
-        self.is_kernel
-    }
 
-
-    pub const fn is_shared_with_parent(&self) -> bool {
-        self.is_shared
+    pub fn need_resched(&self) -> bool {
+        self.need_resched.load(Ordering::SeqCst)
     }
 
     pub fn state(&self) -> TaskState {
@@ -261,6 +241,20 @@ impl TaskInner {
         self.state.store(state as u8, Ordering::SeqCst)
     }
 
+    pub(super) const fn sched_state(&self) -> &SchedulerState {
+        &self.sched_state
+    }
+    pub(super) const fn context(&self) -> &TaskLockedCell<TaskContext> {
+        &self.ctx
+    }
+    pub const fn is_kernel_task(&self) -> bool {
+        self.is_kernel
+    }
+
+    pub const fn is_shared_with_parent(&self) -> bool {
+        self.is_shared
+    }
+    
     pub fn exit_code(&self) -> i32 {
         self.exit_code.load(Ordering::SeqCst)
     }
@@ -268,18 +262,13 @@ impl TaskInner {
     pub(super) fn set_exit_code(&self, exit_code: i32) {
         self.exit_code.store(exit_code, Ordering::SeqCst)
     }
-
-    pub fn need_resched(&self) -> bool {
-        self.need_resched.load(Ordering::SeqCst)
+}
+impl TaskInner {
+    pub fn fd_table(&self) -> &Vec<Option<Arc<dyn File + Send + Sync>>> {
+        &self.fd_table
     }
 
-    pub(super) const fn context(&self) -> &TaskLockedCell<TaskContext> {
-        &self.ctx
-    }
 
-    pub(super) const fn sched_state(&self) -> &SchedulerState {
-        &self.sched_state
-    }
     pub fn alloc_fd(&mut self) -> usize {
         if let Some(fd) = (0..self.fd_table.len()).find(|fd| self.fd_table[*fd].is_none()) {
             fd
@@ -300,7 +289,7 @@ fn task_entry() -> ! {
     unsafe { TASK_MANAGER.force_unlock() };
     instructions::enable_irqs();
     let task = CurrentTask::get();
-    match &task.inner_exclusive_access().entry {
+    match &task.entry {
         EntryState::Kernel { pc, arg } => {
             let entry: fn(usize) -> i32 = unsafe { core::mem::transmute(*pc) };
             let ret = entry(*arg);
@@ -323,11 +312,11 @@ impl<'a> CurrentTask<'a> {
         self.0.clone()
     }
     pub fn clear_need_resched(&self) {
-        self.0.inner_exclusive_access().need_resched.store(false, Ordering::SeqCst);
+        self.0.need_resched.store(false, Ordering::SeqCst);
     }
 
     pub fn set_need_resched(&self) {
-        self.0.inner_exclusive_access().need_resched.store(true, Ordering::SeqCst);
+        self.0.need_resched.store(true, Ordering::SeqCst);
     }
 
     pub fn yield_now(&self) {
@@ -340,7 +329,7 @@ impl<'a> CurrentTask<'a> {
 
     pub fn exit(&self, exit_code: i32) -> ! {
         info!("task exit with code {}", exit_code);
-        if let Some(vm) = self.inner_exclusive_access().vm.as_ref() {
+        if let Some(vm) = self.vm.as_ref() {
             if Arc::strong_count(vm) == 1 {
                 vm.lock().clear(); // drop memory set before lock
             }
@@ -349,11 +338,10 @@ impl<'a> CurrentTask<'a> {
     }
 
     pub fn exec(&self, path: &str, tf: &mut TrapFrame) -> isize {
-        let inner = self.inner_exclusive_access();
-        assert!(!inner.is_kernel_task());
-        assert_eq!(Arc::strong_count(inner.vm.as_ref().unwrap()), 1);
+        assert!(!self.is_kernel_task());
+        assert_eq!(Arc::strong_count(self.vm.as_ref().unwrap()), 1);
         if let Some(elf_data) = loader::get_app_data_by_name(path) {
-            let mut vm = inner.vm.as_ref().unwrap().lock();
+            let mut vm = self.vm.as_ref().unwrap().lock();
             vm.clear();
             let (entry, ustack_top) = vm.load_user(elf_data);
             *tf = TrapFrame::new_user(entry, ustack_top, 0);
@@ -366,8 +354,7 @@ impl<'a> CurrentTask<'a> {
 
     pub fn waitpid(&self, pid: isize, _options: u32) -> Option<(TaskId, i32)> {
         let mut found_pid = false;
-        let inner = self.inner_exclusive_access();
-        for t in inner.children.lock().iter() {
+        for t in self.children.lock().iter() {
             if pid == -1 || t.pid().as_usize() == pid as usize {
                 found_pid = true;
                 break;
@@ -379,18 +366,18 @@ impl<'a> CurrentTask<'a> {
 
         loop {
             {
-                let mut children = inner.children.lock();
+                let mut children = self.children.lock();
                 for (idx, t) in children.iter().enumerate() {
                     if (pid == -1 || t.pid().as_usize() == pid as usize)
-                        && t.inner_exclusive_access().state() == TaskState::Zombie
+                        && t.state() == TaskState::Zombie
                     {
                         let child = children.remove(idx);
                         assert_eq!(Arc::strong_count(&child), 1);
-                        return Some((child.pid(), child.inner_exclusive_access().exit_code()));
+                        return Some((child.pid(), child.exit_code()));
                     }
                 }
             }
-            self.inner_exclusive_access().wait_children_exit.wait();
+            self.wait_children_exit.wait();
         }
     }
 }

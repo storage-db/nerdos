@@ -36,14 +36,12 @@ impl SchedulerTrait for RRScheduler {
     }
 
     fn push_ready_task_back(&mut self, t: Arc<Task>) {
-        println!("1");
-        t.inner_exclusive_access().sched_state().reset();
-        println!("2");
+        t.sched_state().reset();
         self.ready_queue.push_back(t);
     }
 
     fn push_ready_task_front(&mut self, t: Arc<Task>) {
-        t.inner_exclusive_access().sched_state().reset();
+        t.sched_state().reset();
         self.ready_queue.push_front(t);
     }
 
@@ -53,7 +51,7 @@ impl SchedulerTrait for RRScheduler {
 
     fn timer_tick(&mut self) {
         let curr_task = current();
-        if !curr_task.is_idle() && curr_task.inner_exclusive_access().sched_state().decrease() == 0 {
+        if !curr_task.is_idle() && curr_task.sched_state().decrease() == 0 {
             curr_task.set_need_resched();
         }
     }

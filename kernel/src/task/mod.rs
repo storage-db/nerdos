@@ -58,7 +58,7 @@ pub fn handle_irq(vector: usize) {
     let curr = current();
     curr.clear_need_resched();
     crate::drivers::interrupt::handle_irq(vector);
-    if curr.inner_exclusive_access().need_resched() {
+    if curr.need_resched() {
         curr.yield_now();
     }
 }

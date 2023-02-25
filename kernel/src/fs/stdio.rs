@@ -18,19 +18,19 @@ impl File for Stdin {
     fn read(&self, mut user_buf: UserBuffer) -> usize {
         assert_eq!(user_buf.len(), 1);
         // busy loop
-        let mut c: usize;
         loop {
-            c = console_getchar().unwrap() as usize;
-            if c == 0 {
-                current().yield_now();
-                continue;
+            if let Some(c) = console_getchar() {
+                if c == 0 {
+                    continue;
+                } else {
+                    unsafe {
+                        user_buf.buffers[0].as_mut_ptr().write_volatile(c);
+                    }
+                    break;
+                }
             } else {
-                break;
+                current().yield_now();
             }
-        }
-        let ch = c as u8;
-        unsafe {
-            user_buf.buffers[0].as_mut_ptr().write_volatile(ch);
         }
         1
     }
@@ -38,7 +38,24 @@ impl File for Stdin {
         panic!("Cannot write to stdin!");
     }
 }
-
+// pub fn sys_read(fd: usize, mut buf: UserOutPtr<u8>, len: usize) -> isize {
+//     match fd {
+//         FD_STDIN => {
+//             assert_eq!(len, 1, "Only support len = 1 in sys_read!");
+//             loop {
+//                 if let Some(c) = console_getchar() {
+//                     buf.write(c);
+//                     return 1;
+//                 } else {
+//                     crate::task::current().yield_now();
+//                 }
+//             }
+//         }
+//         _ => {
+//             panic!("Unsupported fd in sys_read!");
+//         }
+//     }
+// }
 impl File for Stdout {
     fn readable(&self) -> bool {
         false
