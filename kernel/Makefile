@@ -4,7 +4,6 @@ MODE ?= release
 LOG ?= warn
 RVM ?= off
 GUEST ?= off
-FS_IMG := ./target/fs.img
 # Platform
 ifeq ($(ARCH), x86_64)
   ACCEL ?= on
@@ -81,12 +80,10 @@ else ifeq ($(ARCH), riscv64)
   qemu_args += \
     -machine virt \
     -bios default \
-    -kernel $(kernel_bin)
-    # -drive file=$(FS_IMG),if=none,format=raw,id=x0 \
-    # -device virtio-blk-device,drive=x0 \
-    # -device virtio-net-device,netdev=net0 \
-		# -netdev user,id=net0,hostfwd=udp::6200-:2000 \
-    # -serial stdio
+    -kernel $(kernel_bin)\
+    -device virtio-net-device,netdev=net0 \
+		-netdev user,id=net0,hostfwd=udp::6200-:2000 
+    
 endif
 
 # GDB

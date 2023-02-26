@@ -3,7 +3,7 @@ use crate::sync::{UPIntrFreeCell};
 use virtio_drivers::{ VirtIOBlk, VirtIOHeader};
 use crate::drivers::bus::virtio::VirtioHal;
 #[allow(unused)]
-const VIRTIO0: usize = 0x10001000;
+const VIRTIO0: usize = 0x10004000;
 pub struct VirtIOBlock(UPIntrFreeCell<VirtIOBlk<'static, VirtioHal>>);
 
 

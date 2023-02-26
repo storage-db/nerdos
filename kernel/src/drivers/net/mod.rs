@@ -6,7 +6,7 @@ use alloc::sync::Arc;
 use lazy_static::*;
 use virtio_drivers::{VirtIOHeader, VirtIONet};
 
-const VIRTIO8: usize = 0x10004000;
+const VIRTIO8: usize = 0xffffffc0_10008000;
 
 lazy_static! {
     pub static ref NET_DEVICE: Arc<dyn NetDevice> = Arc::new(VirtIONetWrapper::new());

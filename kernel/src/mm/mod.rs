@@ -1,4 +1,4 @@
-mod address;
+pub mod address;
 mod frame_allocator;
 mod heap_allocator;
 mod memory_set;

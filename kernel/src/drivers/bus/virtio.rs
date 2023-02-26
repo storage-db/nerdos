@@ -3,6 +3,9 @@ use alloc::vec::Vec;
 use lazy_static::*;
 use virtio_drivers::Hal;
 use crate::mm::PhysFrame;
+use crate::mm::address::phys_to_virt;
+use crate::mm::address::virt_to_phys;
+
 lazy_static! {
     static ref QUEUE_FRAMES: UPIntrFreeCell<Vec<PhysFrame>> =
         unsafe { UPIntrFreeCell::new(Vec::new()) };
@@ -21,15 +24,14 @@ impl Hal for VirtioHal {
     }
 
     fn dma_dealloc(_pa: usize, _pages: usize) -> i32 {
-        // 已实现 drop
         0
     }
 
     fn phys_to_virt(addr: usize) -> usize {
-        addr
+        phys_to_virt(addr)
     }
 
     fn virt_to_phys(vaddr: usize) -> usize {
-        vaddr
+        virt_to_phys(vaddr)
     }
 }
