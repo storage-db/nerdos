@@ -326,6 +326,7 @@ pub fn init_kernel_aspace() {
         "physical memory",
     );
     for (base, size) in MMIO_REGIONS {
+        println!("MMIO: [{:#x}, {:#x}]", *base, *base + *size);
         map_range(
             phys_to_virt(*base),
             phys_to_virt(*base + *size),

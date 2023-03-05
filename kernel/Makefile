@@ -56,7 +56,8 @@ GDB := gdb-multiarch
 
 # QEMU
 qemu := qemu-system-$(ARCH)
-qemu_args := -nographic -m 128M
+# qemu_args := -nographic -m 128M
+qemu_args := -m 128M
 
 ifeq ($(ACCEL), on)
   ifeq ($(shell uname), Darwin)

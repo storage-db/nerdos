@@ -19,10 +19,16 @@ extern crate riscv;
 mod logging;
 
 mod arch;
+#[path = "boards/qemu.rs"]
+mod board;
 mod config;
 mod drivers;
+mod fs;
+#[cfg(not(test))]
+mod lang_items;
 mod loader;
 mod mm;
+mod net;
 mod percpu;
 mod platform;
 mod sync;
@@ -30,12 +36,6 @@ mod syscall;
 mod task;
 mod timer;
 mod utils;
-mod fs;
-mod net;
-#[path = "boards/qemu.rs"]
-mod board;
-#[cfg(not(test))]
-mod lang_items;
 
 fn clear_bss() {
     extern "C" {
@@ -77,6 +77,7 @@ const LOGO: &str = r"
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
+
     drivers::init_early();
     println!("{}", LOGO);
     println!(
@@ -109,7 +110,5 @@ pub fn rust_main() -> ! {
     timer::init();
     task::init();
     loader::list_apps();
-    // 问题在这里
     task::run();
-
 }

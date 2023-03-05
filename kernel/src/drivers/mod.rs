@@ -5,8 +5,8 @@ pub mod misc;
 pub mod net;
 pub mod timer;
 pub mod uart;
-
 pub use bus::*;
+pub mod vga;
 pub use net::*;
 
 pub fn init_early() {
@@ -18,4 +18,5 @@ pub fn init() {
     interrupt::init();
     uart::init();
     timer::init();
+    vga::init();
 }

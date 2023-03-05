@@ -2,7 +2,7 @@ use core::fmt::{self, Write};
 
 use log::{self, Level, LevelFilter, Log, Metadata, Record};
 
-use crate::drivers::uart::console_putchar;
+use crate::drivers::vga::console_putchar;
 use crate::percpu::PerCpu;
 use crate::sync::Mutex;
 

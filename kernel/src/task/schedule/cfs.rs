@@ -13,6 +13,6 @@ pub struct CFScheduler{
 
 impl CFSchedulerTrait for CFScheduler{
     fn new() -> Self{
-        let mut  vec  = crate_vec()
+        // let mut  vec  = crate_vec()
     }
 }

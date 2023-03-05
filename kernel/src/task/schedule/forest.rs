@@ -1188,18 +1188,3 @@ pub(super) mod tests;
 
 #[cfg(any(test, fuzzing))]
 pub mod internal_checks;
-Footer
-© 2023 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-slice-rbtree/forest.rs at main · solcery/slice-rbtree
