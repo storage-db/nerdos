@@ -54,6 +54,10 @@ OBJDUMP := rust-objdump -d --print-imm-hex --x86-asm-syntax=intel
 OBJCOPY := rust-objcopy --binary-architecture=$(ARCH)
 GDB := gdb-multiarch
 
+# k210
+K210-SERIALPORT	= /dev/ttyUSB0
+K210-BURNER	= ../tools/kflash.py
+
 # QEMU
 qemu := qemu-system-$(ARCH)
 qemu_args := -nographic -m 128M
