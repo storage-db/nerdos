@@ -1,0 +1,18 @@
+[package]
+name = "nezha_sdc"
+version = "0.1.0"
+edition = "2018"
+authors = ["ez4yunfeng2<ez4yunfeng2@stu.hunau.edu.cn>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+iotest = []
+
+[dependencies]
+log = "0.4.14"
+bitflags = "1.3.2"
+vcell = "0.1.2"
+embedded-hal = "0.2.6"
+lazy_static = { version = "1", features = ["spin_no_std"] }
+nb = "1"
+spin = "0.9.2"

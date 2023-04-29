@@ -1,0 +1,17 @@
+[package]
+name = "elf_rs"
+version = "0.2.0"
+authors = ["Vincent Hou <vincent.houyi@gmail.com>"]
+edition = "2018"
+description = "A simple no_std ELF file reader for ELF32 and ELF64"
+readme = "README.md"
+categories = ["no-std"]
+repository = "https://github.com/vincenthouyi/elf_rs"
+license-file = "LICENSE"
+
+[badges]
+travis-ci = { repository = "vincenthouyi/elf_rs", branch = "master" }
+
+[dependencies]
+bitflags = "1.0.4"
+num-traits = { version = "0.2", default-features = false }

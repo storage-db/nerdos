@@ -60,7 +60,7 @@ impl QEMUExit for RISCV64 {
         };
         unsafe {
             asm!(
-                "sw {0}, 0({1})",
+                "sw {0:e}, 0({1})",
                 in(reg)code_new, in(reg)self.addr
             );
 

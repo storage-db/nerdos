@@ -1,147 +1,136 @@
-# Arguments
-ARCH ?= x86_64
-MODE ?= release
-LOG ?= warn
-RVM ?= off
-GUEST ?= off
-# Platform
-ifeq ($(ARCH), x86_64)
-  ACCEL ?= on
-  ifeq ($(RVM), on)
-    PLATFORM ?= pc-rvm
-  else ifeq ($(GUEST), on)
-    PLATFORM ?= rvm-guest-x86_64
-  else
-    PLATFORM ?= pc
-  endif
-else ifeq ($(ARCH), aarch64)
-  ACCEL ?= off
-  PLATFORM ?= qemu-virt-arm
-else ifeq ($(ARCH), riscv64)
-  ACCEL ?= off
-  PLATFORM ?= qemu-virt-riscv
+# Building
+TARGET := riscv64imac-unknown-none-elf
+MODE := release
+KERNEL_ELF := target/$(TARGET)/$(MODE)/UltraOS
+KERNEL_BIN := $(KERNEL_ELF).bin
+DISASM_TMP := target/$(TARGET)/$(MODE)/asm
+FS_IMG := ../user/target/$(TARGET)/$(MODE)/fs.img
+U_FAT32_DIR := ../fat32-fuse
+ifeq ($(BOARD), k210)
+	U_FAT32 := /dev/sdb1
+else 
+	U_FAT32 := ${U_FAT32_DIR}/fat32.img
 endif
 
-export ARCH
-export PLATFORM
-export MODE
-export LOG
 
-make_args := ARCH=$(ARCH) PLATFORM=$(PLATFORM) MODE=$(MODE) LOG=$(LOG)
 
-# Paths
-target := ../targets/$(ARCH).json
-kernel_elf := target/$(ARCH)/$(MODE)/nerdos
-kernel_bin := $(kernel_elf).bin
+SDCARD := /dev/sdb
+APPS := ../user/src/bin/*
+TOP := ../../k210.bin
 
-# Cargo features and build args
-features := platform-$(PLATFORM)
+# BOARD
+BOARD ?= qemu
+SBI ?= rustsbi
+ifeq ($(BOARD), qemu)
+	BOOTLOADER := default
+#	BOOTLOADER := ../bootloader/$(SBI)-$(BOARD).bin # If you have no OpenSBI, try RustSBI.
+#	BOOTLOADER := ../bootloader/$(SBI)-$(BOARD)-new.bin # If you want to use new RustSBI, try this.
+else ifeq ($(BOARD), k210)
+	BOOTLOADER := ../bootloader/$(SBI)-$(BOARD).bin
+endif
+K210_BOOTLOADER_SIZE := 131072
 
-ifeq ($(RVM), on)
-  features += rvm
+# KERNEL ENTRY
+ifeq ($(BOARD), qemu)
+	KERNEL_ENTRY_PA := 0x80200000
+else ifeq ($(BOARD), k210)
+	KERNEL_ENTRY_PA := 0x80020000
 endif
 
-build_args := --no-default-features --features "$(features)" --target $(target) -Zbuild-std=core,alloc -Zbuild-std-features=compiler-builtins-mem
-ifeq ($(MODE), release)
-  build_args += --release
-endif
-ifeq ($(MODe), debug)
-  build_args += --verbose
-endif
-
-# Binutils
-OBJDUMP := rust-objdump -d --print-imm-hex --x86-asm-syntax=intel
-OBJCOPY := rust-objcopy --binary-architecture=$(ARCH)
-GDB := gdb-multiarch
-
-# k210
+# Run K210
 K210-SERIALPORT	= /dev/ttyUSB0
 K210-BURNER	= ../tools/kflash.py
 
-# QEMU
-qemu := qemu-system-$(ARCH)
-qemu_args := -nographic -m 128M
+# Binutils
+OBJDUMP := rust-objdump --arch-name=riscv64
+OBJCOPY := rust-objcopy --binary-architecture=riscv64
 
-ifeq ($(ACCEL), on)
-  ifeq ($(shell uname), Darwin)
-    qemu_args += -cpu host -accel hvf
-  else
-    qemu_args += -cpu host -accel kvm
-  endif
-endif
+# Disassembly
+DISASM ?= -x
 
-ifeq ($(ARCH), x86_64)
-  qemu_args += \
-    -machine q35 \
-    -serial mon:stdio \
-    -kernel $(kernel_elf)
-else ifeq ($(ARCH), aarch64)
-  qemu_args += \
-    -cpu cortex-a72 \
-    -machine virt \
-    -kernel $(kernel_bin)
-else ifeq ($(ARCH), riscv64)
-  qemu_args += \
-    -machine virt \
-    -bios default \
-    -kernel $(kernel_bin)\
-    -device virtio-net-device,netdev=net0 \
-		-netdev user,id=net0,hostfwd=udp::6200-:2000 
-    
-endif
-
-# GDB
-GDB := gdb-multiarch
-
-build: $(kernel_bin)
+# build: env $(KERNEL_BIN) $(FS_IMG) fat32
+build: $(KERNEL_BIN)
 
 env:
-	cargo install cargo-binutils --vers =0.3.3
+	rustup override set nightly-2021-05-10
+	(rustup target list | grep "riscv64imac-unknown-none-elf (installed)") || rustup target add $(TARGET)
 	rustup component add rust-src
 	rustup component add llvm-tools-preview
 
-$(kernel_bin): kernel
-	@$(OBJCOPY) $(kernel_elf) --strip-all -O binary $@
+#(rustup target list | grep "riscv64gc-unknown-none-elf (installed)") || rustup target add $(TARGET)
+#cargo install cargo-binutils
+	
 
-user:
-	@cd ../user && make build
+# dev/zero永远输出0
+sdcard: 
+	@echo "Are you sure write to $(SDCARD) ? [y/N] " && read ans && [ $${ans:-N} = y ]
+	@sudo dd if=/dev/zero of=$(SDCARD) bs=1048576 count=16
+	@sudo dd if=$(FS_IMG) of=$(SDCARD)
+
+$(KERNEL_BIN): kernel
+	@$(OBJCOPY) $(KERNEL_ELF) --strip-all -O binary $@
+#	@$(OBJDUMP) -S $(KERNEL_ELF) > $(KERNEL_ELF).S
+
+$(APPS):
+
+fat32: 
+	./buildfs.sh
+
+fsimg-format:
+	sudo mkfs.vfat -F 32 ${U_FAT32}
 
 kernel:
-	@echo Arch: $(ARCH), Platform: $(PLATFORM)
-ifneq ($(shell head -n1 src/platform/config.rs 2> /dev/null | cut -d' ' -f2), $(ARCH)-$(PLATFORM))
-	@echo $(make_args) > .makeargs
-endif
-ifneq ($(shell cat .makeargs 2> /dev/null), $(make_args))
-	@echo $(make_args) > .makeargs
-endif
-	cargo build $(build_args)
+	@echo Platform: $(BOARD)
+	@cp src/linker-$(BOARD).ld src/linker.ld
+	@cargo build --release --features "board_$(BOARD) platform-qemu-virt-riscv" --target ../targets/riscv64.json -Zbuild-std=core,alloc -Zbuild-std-features=compiler-builtins-mem
+	@rm src/linker.ld
 
 clean:
-	@cd ../user && make clean
 	@cargo clean
 
-clippy:
-	cargo clippy $(build_args)
+run: run-inner
 
-fs-img: 
-	@cd ../user && make build
-	@rm -f $(FS_IMG)
-	@cd ../easy-fs-fuse && cargo run --release -- -s ../user/rust/src/bin/ -t ../user/build/riscv64/
+run-inner:  build 
+ifeq ($(BOARD),qemu)
+	@qemu-system-riscv64 \
+		-machine virt \
+		-nographic \
+		-bios $(BOOTLOADER) \
+		-device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) \
+		-drive file=$(U_FAT32),if=none,format=raw,id=x0 \
+        -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0\
+		-smp threads=2
+else
+	(which $(K210-BURNER)) || (cd .. && git clone https://github.com/sipeed/kflash.py.git && mv kflash.py tools)
+	@cp $(BOOTLOADER) $(BOOTLOADER).copy
+	@dd if=$(KERNEL_BIN) of=$(BOOTLOADER).copy bs=$(K210_BOOTLOADER_SIZE) seek=1
+	@mv $(BOOTLOADER).copy $(KERNEL_BIN)
+	@sudo chmod 777 $(K210-SERIALPORT)
+	python3 $(K210-BURNER) -p $(K210-SERIALPORT) -b 1500000 $(KERNEL_BIN)
+	python3 -m serial.tools.miniterm --eol LF --dtr 0 --rts 0 --filter direct $(K210-SERIALPORT) 115200
+endif
 
-disasm:
-	@$(OBJDUMP) $(kernel_elf) | less
 
-run: user build justrun
+monitor:
+	riscv64-unknown-elf-gdb -ex 'file target/riscv64imac-unknown-none-elf/release/os' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
 
-justrun:
-	$(qemu) $(qemu_args)
+gdb:
+	@qemu-system-riscv64 -machine virt -nographic -bios $(BOOTLOADER) -device loader,\
+	file=target/riscv64imac-unknown-none-elf/release/os,addr=0x80200000 -drive \
+	file=$(U_FAT32),if=none,format=raw,id=x0 \
+	-device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -smp threads=2 -S -s
 
-debug: build
-	$(qemu) $(qemu_args) -s -S &
-	sleep 1
-	$(GDB) $(kernel_elf) -ex 'target remote localhost:1234'
+runsimple:
+	@qemu-system-riscv64 \
+		-machine virt \
+		-nographic \
+		-bios $(BOOTLOADER) \
+		-device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) \
+		-drive file=$(U_FAT32),if=none,format=raw,id=x0 \
+        -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0\
+		-smp threads=2
 
-scp:
-	scp -P 2333 $(kernel_bin) ubuntu@localhost:/home/ubuntu
-
-.PHONY: build env kernel user clean disasm run debug scp
+release: build
+	@cp $(BOOTLOADER) $(BOOTLOADER).copy
+	@dd if=$(KERNEL_BIN) of=$(BOOTLOADER).copy bs=$(K210_BOOTLOADER_SIZE) seek=1
+	@mv $(BOOTLOADER).copy $(TOP)
