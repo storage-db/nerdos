@@ -82,7 +82,7 @@ fsimg-format:
 kernel:
 	@echo Platform: $(BOARD)
 	@cp src/linker-$(BOARD).ld src/linker.ld
-	@cargo build --release --features "board_$(BOARD) platform-qemu-virt-riscv" --target ../targets/riscv64.json -Zbuild-std=core,alloc -Zbuild-std-features=compiler-builtins-mem
+	@cargo build --release --no-default-features --features "board_$(BOARD) platform-qemu-virt-riscv" --target ../targets/riscv64.json -Zbuild-std=core,alloc -Zbuild-std-features=compiler-builtins-mem
 	@rm src/linker.ld
 
 clean:

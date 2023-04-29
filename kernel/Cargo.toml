@@ -30,9 +30,9 @@ lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers", rev = "4ee80e5" }
 easy-fs = { path = "../easy-fs" }
 lose-net-stack = { git = "https://github.com/yfblock/lose-net-stack", rev = "3f467dd" }
-k210-pac = { path = "../dependencies/k210-pac" }
-k210-hal = { path = "../dependencies/k210-hal" }
-k210-soc = { path = "../dependencies/k210-soc" }
+# k210-pac = { path = "../dependencies/k210-pac" }
+# k210-hal = { path = "../dependencies/k210-hal" }
+# k210-soc = { path = "../dependencies/k210-soc" }
 
 
 
