@@ -1,4 +1,8 @@
 # Building
+ARCH ?= riscv64
+LOG ?= warn
+RVM ?= off
+GUEST ?= off
 TARGET := riscv64
 MODE := release
 KERNEL_ELF := target/$(TARGET)/$(MODE)/nerdos
@@ -81,9 +85,7 @@ fsimg-format:
 
 kernel:
 	@echo Platform: $(BOARD)
-	@cp src/linker-$(BOARD).ld src/linker.ld
-	@cargo build --release --no-default-features --features "board_$(BOARD) platform-qemu-virt-riscv" --target ../targets/riscv64.json -Zbuild-std=core,alloc -Zbuild-std-features=compiler-builtins-mem
-	@rm src/linker.ld
+	@cargo build --release --no-default-features --features "board_$(BOARD) platform-k210" --target ../targets/riscv64.json -Zbuild-std=core,alloc -Zbuild-std-features=compiler-builtins-mem
 
 clean:
 	@cargo clean
@@ -101,10 +103,11 @@ ifeq ($(BOARD),qemu)
         -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0\
 		-smp threads=2
 else
-	(which $(K210-BURNER)) || (cd .. && git clone https://github.com/sipeed/kflash.py.git && mv kflash.py tools)
 	@cp $(BOOTLOADER) $(BOOTLOADER).copy
 	@dd if=$(KERNEL_BIN) of=$(BOOTLOADER).copy bs=$(K210_BOOTLOADER_SIZE) seek=1
 	@mv $(BOOTLOADER).copy $(KERNEL_BIN)
+	cp $(KERNEL_BIN) ./nerdos.bin
+	(which $(K210-BURNER)) || (cd .. && git clone https://github.com/sipeed/kflash.py.git && mv kflash.py tools)
 	@sudo chmod 777 $(K210-SERIALPORT)
 	python3 $(K210-BURNER) -p $(K210-SERIALPORT) -b 1500000 $(KERNEL_BIN)
 	python3 -m serial.tools.miniterm --eol LF --dtr 0 --rts 0 --filter direct $(K210-SERIALPORT) 115200

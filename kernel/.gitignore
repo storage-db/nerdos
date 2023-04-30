@@ -2,3 +2,4 @@
 /src/platform
 /linker.ld
 /.makeargs
+nerdos.bin

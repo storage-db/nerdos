@@ -8,6 +8,9 @@ cfg_if! {
     } else if #[cfg(feature = "platform-qemu-virt-riscv")] {
         mod qemu_virt_riscv;
         pub use self::qemu_virt_riscv::*;
+    } else if #[cfg(feature = "platform-k210")] {
+        mod k210;
+        pub use self::k210::*;
     }
 }
 

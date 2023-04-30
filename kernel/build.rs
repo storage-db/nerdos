@@ -19,6 +19,8 @@ fn main() {
         "qemu-virt-riscv"
     } else if cfg!(feature = "platform-rvm-guest-x86_64") {
         "rvm-guest-x86_64"
+    } else if cfg!(feature = "platform-k210") {
+        "k210-riscv"
     } else {
         panic!("Unsupported platform!");
     };
