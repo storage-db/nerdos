@@ -9,8 +9,8 @@ A hobbyist operating system written in Rust based on [equation314/nimbos](https:
 - [x] Net driver
 - [ ] CFS scheduler (I found the rbt implementation but cfs is still a bit difficult and takes time)
 - [ ] message queue
-- [ ] SMP
-- [ ] Grub start
+- [x] k210 support
+- [x] Grub start
 
 ## Development Environment
 
