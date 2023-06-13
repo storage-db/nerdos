@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <xml><w:WordDocument><w:View>Print</w:View></xml>
+    <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:TrackMoves>false</w:TrackMoves><w:TrackFormatting/><w:ValidateAgainstSchemas/><w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid><w:IgnoreMixedContent>false</w:IgnoreMixedContent><w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText><w:DoNotPromoteQF/><w:LidThemeOther>EN-US</w:LidThemeOther><w:LidThemeAsian>ZH-CN</w:LidThemeAsian><w:LidThemeComplexScript>X-NONE</w:LidThemeComplexScript><w:Compatibility><w:BreakWrappedTables/><w:SnapToGridInCell/><w:WrapTextWithPunct/><w:UseAsianBreakRules/><w:DontGrowAutofit/><w:SplitPgBreakAndParaMark/><w:DontVertAlignCellWithSp/><w:DontBreakConstrainedForcedTables/><w:DontVertAlignInTxbx/><w:Word11KerningPairs/><w:CachedColBalance/><w:UseFELayout/></w:Compatibility><w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel><m:mathPr><m:mathFont m:val="Cambria Math"/><m:brkBin m:val="before"/><m:brkBinSub m:val="--"/><m:smallFrac m:val="off"/><m:dispDef/><m:lMargin m:val="0"/> <m:rMargin m:val="0"/><m:defJc m:val="centerGroup"/><m:wrapIndent m:val="1440"/><m:intLim m:val="subSup"/><m:naryLim m:val="undOvr"/></m:mathPr></w:WordDocument></xml><![endif]-->
+
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /><title>
+	天津科技大学本科毕业设计（论文）答辩小组评分评语表
+</title><meta name="Generator" content="Microsoft Word 15 (filtered)" />
+    <style>
+        <!--
+        /* Font Definitions */
+        @font-face {
+            font-family: 宋体;
+            panose-1: 2 1 6 0 3 1 1 1 1 1;
+        }
+
+        @font-face {
+            font-family: 黑体;
+            panose-1: 2 1 6 9 6 1 1 1 1 1;
+        }
+
+        @font-face {
+            font-family: "Cambria Math";
+            panose-1: 2 4 5 3 5 4 6 3 2 4;
+        }
+
+        @font-face {
+            font-family: 等线;
+            panose-1: 2 1 6 0 3 1 1 1 1 1;
+        }
+
+        @font-face {
+            font-family: "\@宋体";
+            panose-1: 2 1 6 0 3 1 1 1 1 1;
+        }
+
+        @font-face {
+            font-family: "\@黑体";
+            panose-1: 2 1 6 0 3 1 1 1 1 1;
+        }
+
+        @font-face {
+            font-family: "\@等线";
+            panose-1: 2 1 6 0 3 1 1 1 1 1;
+        }
+        /* Style Definitions */
+        p.MsoNormal, li.MsoNormal, div.MsoNormal {
+            margin: 0cm;
+            text-align: justify;
+            text-justify: inter-ideograph;
+            font-size: 10.5pt;
+            font-family: "Times New Roman",serif;
+        }
+
+        .MsoChpDefault {
+            font-family: 等线;
+        }
+        /* Page Definitions */
+        @page WordSection1 {
+            size: 595.3pt 841.9pt;
+            margin: 72.0pt 90.0pt 72.0pt 90.0pt;
+            layout-grid: 15.6pt;
+        }
+
+        div.WordSection1 {
+            page: WordSection1;
+        }
+        -->
+    </style>
+
+</head>
+
+<body lang="ZH-CN" style='word-wrap: break-word; text-justify-trim: punctuation'>
+
+    <div class="WordSection1" style='layout-grid: 15.6pt'>
+
+        <p class="MsoNormal" align="center" style='text-align: center'>
+            <b><span
+                style='font-size: 16.0pt; font-family: 宋体'>天津科技大学</span></b>
+        </p>
+
+        <p class="MsoNormal" align="center" style='text-align: center'>
+            <b><span
+                style='font-size: 16.0pt; font-family: 宋体'>本科毕业设计（论文）</span></b><span
+                    style='font-size: 14.0pt; font-family: 黑体'>答辩小组评分评语表</span>
+        </p>
+
+        <table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0"
+            style='border-collapse: collapse; border: none'>
+            <tr style='height: 1.0cm'>
+                <td width="568" colspan="6" style='width: 426.1pt; border: none; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" style="text-align: left;">
+                        <span style='font-family: 宋体'>课题名称：
+                        <span id="ReportViewName">基于Rust的跨平台实时操作系统的设计与优化</span>
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            <tr style='height: 1.0cm'>
+                <td width="177" style='width: 133.0pt; border: none; border-bottom: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" style="text-align: left;">
+                        <span style='font-family: 宋体'>学院：
+                        <span id="XueYuanName">人工智能学院</span>
+                        </span>
+                    </p>
+                </td>
+                <td width="201" colspan="2" style='width: 151.05pt; border: none; border-bottom: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" style="text-align: left;">
+                        <span style='font-family: 宋体'>专业：
+                        <span id="ZhuanYeName">物联网工程</span>
+                        </span>
+                    </p>
+                </td>
+                <td width="189" colspan="3" style='width: 142.05pt; border: none; border-bottom: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" style="text-align: left;">
+                        <span style='font-family: 宋体'>学生姓名：
+                            <span id="StudentUserName">王炼</span>
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            <tr style='height: 1.0cm'>
+                <td width="177" style='width: 133.0pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span style='font-family: 宋体'>评价内容</span>
+                    </p>
+                </td>
+                <td width="201" colspan="2" style='width: 151.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span style='font-family: 宋体'>具体要求</span>
+                    </p>
+                </td>
+                <td width="189" colspan="3" style='width: 142.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span style='font-family: 宋体'>评分</span>
+                    </p>
+                </td>
+            </tr>
+
+            
+            <tr style='height: 1.0cm'>
+                <td width="177" style='width: 133.0pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            报告内容
+                        </span>
+                    </p>
+                </td>
+                <td width="201" colspan="2" style='width: 151.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="left" style='text-align: left'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            思路清晰；概念清楚，论点（设计方案）正确，语言表达准确；实验方法科学，设计结构正确，分析归纳合理；结论严谨，论文（设计）结果有应用价值。
+                        </span>
+                    </p>
+                </td>
+                <td width="189" colspan="3" style='width: 142.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            48.0
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            
+            <tr style='height: 1.0cm'>
+                <td width="177" style='width: 133.0pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            成果
+                        </span>
+                    </p>
+                </td>
+                <td width="201" colspan="2" style='width: 151.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="left" style='text-align: left'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            取得成果有价值或有创新。
+                        </span>
+                    </p>
+                </td>
+                <td width="189" colspan="3" style='width: 142.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            10.0
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            
+            <tr style='height: 1.0cm'>
+                <td width="177" style='width: 133.0pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            答辩
+                        </span>
+                    </p>
+                </td>
+                <td width="201" colspan="2" style='width: 151.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="left" style='text-align: left'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            回答问题有理论根据，基本概念清楚，有逻辑性。主要问题回答准确、有深度。
+                        </span>
+                    </p>
+                </td>
+                <td width="189" colspan="3" style='width: 142.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            29.0
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            
+            <tr style='height: 1.0cm'>
+                <td width="177" style='width: 133.0pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            报告时间
+                        </span>
+                    </p>
+                </td>
+                <td width="201" colspan="2" style='width: 151.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="left" style='text-align: left'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            符合要求。
+                        </span>
+                    </p>
+                </td>
+                <td width="189" colspan="3" style='width: 142.05pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            10.0
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            
+
+            <tr style='height: 105.5pt'>
+                <td width="177" style='width: 133.0pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 105.5pt'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span style='font-family: 宋体'>答辩小组评语</span>
+                    </p>
+                </td>
+                <td width="391" colspan="5" style='width: 293.1pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 105.5pt'>
+                    <p class="MsoNormal">
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            <span id="DaBianXiaoZuYiJian">思路清晰；概念清楚，论点（设计方案）正确,回答问题有理论根据，基本概念清楚，取得成果有价&#20540;,报告时间符合要求。</span>
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            <tr style='height: 1.0cm'>
+                <td rowspan="2" width="177" style='width: 133.0pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span style='font-family: 宋体'>成绩</span>
+                    </p>
+                </td>
+                <td width="104" style='width: 77.95pt; border: none; border-right: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span
+                            style='font-family: 宋体'>指导教师成绩</span>
+                    </p>
+                </td>
+                <td width="123" colspan="2" style='width: 92.15pt; border: none; border-right: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span
+                            style='font-family: 宋体'>评阅教师成绩</span>
+                    </p>
+                </td>
+                <td width="85" style='width: 63.8pt; border: none; border-right: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span style='font-family: 宋体'>答辩成绩</span>
+                    </p>
+                </td>
+                <td width="79" style='width: 59.2pt; border: none; border-right: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span style='font-family: 宋体'>总成绩</span>
+                    </p>
+                </td>
+            </tr>
+            <tr style='height: 1.0cm'>
+                <td width="104" style='width: 77.95pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            <span id="GuidanceScore">92.0</span>
+                        </span>
+                    </p>
+                </td>
+                <td width="123" colspan="2" style='width: 92.15pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            <span id="EvaluationScore">96.0</span>
+                        </span>
+                    </p>
+                </td>
+                <td width="85" style='width: 63.8pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            <span id="txtDefenceScore">97.0</span>
+                        </span>
+                    </p>
+                </td>
+                <td width="79" style='width: 59.2pt; border: solid windowtext 1.0pt; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="center" style='text-align: center'>
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            <span id="TotalScore">94.60</span>
+                        </span>
+                    </p>
+                </td>
+            </tr>
+            <tr style='height: 1.0cm'>
+                <td width="379" colspan="3" style='width: 284.05pt; border: none; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+                    <p class="MsoNormal" align="left" style='text-align: left'>
+                        <span style='font-family: 宋体'>答辩组长签名：史艳翠</span>
+                    </p>
+                </td>
+                <td width="189" colspan="3" style='width: 142.05pt; border: none; padding: 0cm 5.4pt 0cm 5.4pt; height: 1.0cm'>
+
+                    <p class="MsoNormal">
+                        <span lang="EN-US" style='font-family: 宋体'>
+                            <span id="DefenceAuditTime">2023年06月10日</span>
+                        </span>
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+
+</html>
